@@ -60,12 +60,13 @@ public class FrugalFetchTestDetails {
     }
 
     //This function obtains required data from JSON object containing data of latest test results
-    public String getLog(JSONObject jObject)
+    public String getLog(String previous_timestamp, JSONObject jObject)
     {
         JSONObject testLogs = jObject.getJSONObject("testRunResults");
         Iterator<String> key = testLogs.keys();
         if(!key.hasNext())return "";
         String timestamp = key.next();
+        if(timestamp.equals(previous_timestamp))return "";
         String ans="["+timestamp+"]";
         JSONArray jArray = testLogs.getJSONArray(timestamp);
         int flag = 0;
