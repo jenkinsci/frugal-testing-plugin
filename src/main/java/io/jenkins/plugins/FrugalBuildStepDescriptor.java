@@ -7,6 +7,8 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
+import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kohsuke.stapler.QueryParameter;
@@ -27,6 +29,7 @@ import static io.jenkins.plugins.FrugalServerDetails.SERVERURL;
 */
 
 @Extension
+@Symbol("frugalTesting")
 public class FrugalBuildStepDescriptor extends BuildStepDescriptor<Builder> {
 
     private ArrayList<FrugalCredentials> allCreds;//Array to store list of all stored credentials
@@ -77,9 +80,10 @@ public class FrugalBuildStepDescriptor extends BuildStepDescriptor<Builder> {
     //This function is responsible for fetching the contents appearing in the "Username" dropdown
     public ListBoxModel doFillUserIdItems() {
         ListBoxModel items = new ListBoxModel();
-        allCreds = credOps.getAllCredentials();//getting all the credentials using
         items.add("Choose username","");//adding a dummy (placeholder)value to the dropdown
-
+        if(!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER))
+            return items;
+        allCreds = credOps.getAllCredentials();//getting all the credentials using
         //Adding all the credentials to the dropdown
         for (final FrugalCredentials c : allCreds) {
                 items.add(c.getUsername(),c.getId());
