@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin integrates Frugal Testing - a cloud based load testing solution to Jenkins
+</div>
