@@ -1,14 +1,16 @@
 package io.jenkins.plugins;
 
 import com.squareup.okhttp.*;
+import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.Build;
-import hudson.model.BuildListener;
+import hudson.model.*;
 import hudson.tasks.Builder;
+import jenkins.tasks.SimpleBuildStep;
 import org.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -26,7 +28,7 @@ import static io.jenkins.plugins.FrugalServerDetails.SERVERURL;
  *
  */
 
-public class FrugalBuildStep extends Builder {
+public class FrugalBuildStep extends Builder implements SimpleBuildStep {
     private String userId;//Stores ID given to a particular credential by jenkins
     private String testId;//ID of test the user wants to execute
     private String runTag;//Run name chosen by user
@@ -62,7 +64,8 @@ public class FrugalBuildStep extends Builder {
 
     //Operations taking place at Build time are performed within the perform() function
     @Override
-    public boolean perform(Build<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath filePath, @Nonnull Launcher launcher, @Nonnull TaskListener taskListener) throws InterruptedException, IOException {
+        BuildListener listener = (BuildListener) launcher.getListener();
         //getting server details
         String serverUrl = (new FrugalBuildStepDescriptor()).getDescriptor().getServerUrl();
         //Getting login details
@@ -70,7 +73,8 @@ public class FrugalBuildStep extends Builder {
         if(c==null)
         {
             listener.getLogger().println("Credentials not found");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         String username = c.getUsername();
         String password = c.getPassword().getPlainText();
@@ -96,7 +100,8 @@ public class FrugalBuildStep extends Builder {
         if(!response1.isSuccessful())
         {
             listener.getLogger().println("Login failed");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         listener.getLogger().println("Logged in");
 
@@ -110,12 +115,14 @@ public class FrugalBuildStep extends Builder {
         if(!response3.isSuccessful())
         {
             listener.getLogger().println("Test Run could not be created");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         else if(testRunId.equals("0"))
         {
             listener.getLogger().println("Your account either has insufficient balance or you ran out of tests");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         listener.getLogger().println("Test Run Created. Test Run ID: "+testRunId);
 
@@ -128,7 +135,8 @@ public class FrugalBuildStep extends Builder {
         if(!response4.isSuccessful())
         {
             listener.getLogger().println("Test Instance could not be created");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         listener.getLogger().println("Instance Created");
 
@@ -145,19 +153,21 @@ public class FrugalBuildStep extends Builder {
         faction.setDisplayName(displayName);
         faction.setIconFileName(ICONPATH);
         faction.setReportUrl(reportUrl);
-        build.addAction(faction);
+        run.addAction(faction);
         listener.getLogger().println("Monitor your test at :"+reportUrl);
         listener.getLogger().println("Starting test. This may take a few minutes. . . ");
         Response response5 = client.newCall(request5).execute();
         if(!response5.isSuccessful())
         {
             listener.getLogger().println("Test could not be started");
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
 
         //Getting live test status
         try {
             int counter=0;
+            String previous_timeStamp = "";
             while(true) {
                 Request request6 = new Request.Builder()
                         .url(serverUrl + "/rest/getLatestTestResultByRunID?testRunID=" + testRunId + "&locationID=all")
@@ -169,10 +179,11 @@ public class FrugalBuildStep extends Builder {
                 FrugalFetchTestDetails fetch = new FrugalFetchTestDetails();
                 try {
                     JSONObject jObject = new JSONObject(jsonData);
-                    String toPrint = fetch.getLog(jObject);
+                    String toPrint = fetch.getLog(previous_timeStamp,jObject);
                     //Checking if test run completed
                     if(jObject.getString("testRunComplete").equals("yes"))break;
                     if(toPrint.equals(""))continue;
+                    previous_timeStamp = toPrint.substring(1,9);
                     listener.getLogger().println(toPrint);
                     //print result in intervals of one minute
                     TimeUnit.SECONDS.sleep(30);
@@ -181,7 +192,8 @@ public class FrugalBuildStep extends Builder {
                     if(counter>=20)
                     {
                         listener.getLogger().println("Results could not be fetched due to some reason. Please try again later");
-                        return false;
+                        run.setResult(Result.FAILURE);
+                        return;
                     }
                     continue;
                 }
@@ -191,11 +203,12 @@ public class FrugalBuildStep extends Builder {
         catch(Exception e)
         {
             listener.getLogger().println("Test aborted "+e);
-            return false;
+            run.setResult(Result.FAILURE);
+            return;
         }
         listener.getLogger().println("Test Completed");
 
-        //Checking if JTL is to be downloaded
+       //Checking if JTL is to be downloaded
         if(isGetJtl())
         {
             //Downloading JTL
@@ -209,11 +222,11 @@ public class FrugalBuildStep extends Builder {
             {
                 listener.getLogger().println("Download Complete!");
                 String jtlFile = response7.body().string();
-                String workspaceDir = build.getWorkspace()+"/"+build.getId();
-                String filePath = workspaceDir+"/"+"output_"+getTestId()+"_"+testRunId+".jtl";
+                String workspaceDir = filePath+"/"+run.getId();
+                String completeJtlPath = workspaceDir+"/"+"output_"+getTestId()+"_"+testRunId+".jtl";
                 boolean created = new File(workspaceDir).mkdir();
                 if(created) {
-                    File file = new File(filePath);
+                    File file = new File(completeJtlPath);
                     Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
                     fw.write(jtlFile);
                     fw.close();
@@ -225,6 +238,6 @@ public class FrugalBuildStep extends Builder {
 
         //clear cookies
         ck.getCookieStore().removeAll();
-        return true;
+        return;
     }
 }
