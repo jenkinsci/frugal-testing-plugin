@@ -27,12 +27,14 @@ public class FrugalFetchTestDetails {
         CookieHandler.setDefault(ck);
         OkHttpClient client= new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        String loginContent = "username="+username+"&password="+password.getPlainText();
+        RequestBody loginReq = RequestBody.create(mediaType,loginContent);
         RequestBody req = RequestBody.create(mediaType, "");
 
         //login
         Request request1 = new Request.Builder()
-                .url(serverUrl+"/login?username="+username+"&password="+password.getPlainText())
-                .post(req)
+                .url(serverUrl+"/login)
+                .post(loginReq)
                 .build();
         client.newCall(request1).execute();
 
