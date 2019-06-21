@@ -33,7 +33,7 @@ public class FrugalFetchTestDetails {
 
         //login
         Request request1 = new Request.Builder()
-                .url(serverUrl+"/login)
+                .url(serverUrl+"/login")
                 .post(loginReq)
                 .build();
         client.newCall(request1).execute();
