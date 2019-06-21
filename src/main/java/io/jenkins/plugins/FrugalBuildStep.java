@@ -89,12 +89,14 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
         client.setConnectTimeout(5, TimeUnit.MINUTES);
         client.setReadTimeout(5, TimeUnit.MINUTES);
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+        String loginContent = "username="+username+"&password="+password;
+        RequestBody loginReq = RequestBody.create(mediaType,loginContent);
         RequestBody req = RequestBody.create(mediaType, "");
 
         //Sending login request
         Request request1 = new Request.Builder()
-                .url(serverUrl+"/login?username="+username+"&password="+password)
-                .post(req)
+                .url(serverUrl+"/login)
+                .post(loginReq)
                 .build();
         Response response1 = client.newCall(request1).execute();
         if(!response1.isSuccessful())
