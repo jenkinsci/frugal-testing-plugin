@@ -95,7 +95,7 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
 
         //Sending login request
         Request request1 = new Request.Builder()
-                .url(serverUrl+"/login)
+                .url(serverUrl+"/login")
                 .post(loginReq)
                 .build();
         Response response1 = client.newCall(request1).execute();
