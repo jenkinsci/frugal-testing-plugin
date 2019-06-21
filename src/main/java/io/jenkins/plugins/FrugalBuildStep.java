@@ -232,7 +232,7 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
                     Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
                     fw.write(jtlFile);
                     fw.close();
-                    listener.getLogger().println("Your file is at: " + filePath);
+                    listener.getLogger().println("Your file is at: " + completeJtlPath);
                 }else listener.getLogger().println("Some error occurred in creating the directory to store your file");
             }
             else listener.getLogger().println("Download unsuccessful");
