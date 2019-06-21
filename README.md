@@ -1,6 +1,6 @@
 # Frugal Testing Jenkins plugin
 
-This plugin allows users to run tests from the [Frugal Testing's cloud platform](https://www.frugaltesting.com).
+This plugin allows users to run tests from the [Frugal Testing cloud platform](https://www.frugaltesting.com).
 
 ### Usage:
 
