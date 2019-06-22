@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 /**
@@ -27,7 +29,9 @@ public class FrugalFetchTestDetails {
         CookieHandler.setDefault(ck);
         OkHttpClient client= new OkHttpClient();
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-        String loginContent = "username="+username+"&password="+password.getPlainText();
+        username = URLEncoder.encode(username, StandardCharsets.UTF_8.name());
+        String pswd = URLEncoder.encode(password.getPlainText(), StandardCharsets.UTF_8.name());
+        String loginContent = "username="+username+"&password="+pswd;
         RequestBody loginReq = RequestBody.create(mediaType,loginContent);
         RequestBody req = RequestBody.create(mediaType, "");
 

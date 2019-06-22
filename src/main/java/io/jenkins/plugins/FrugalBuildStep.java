@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -38,10 +39,9 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
 
     //Data fetched from form at build step configuration are sent to this constructor as input
     @DataBoundConstructor
-    public FrugalBuildStep(String userId, String testId, String runTag, boolean getJtl)
-    {
+    public FrugalBuildStep(String userId, String testId, String runTag, boolean getJtl) throws UnsupportedEncodingException {
         this.userId = userId;
-        this.runTag = runTag.replaceAll(" ","%20");
+        this.runTag = URLEncoder.encode(runTag,StandardCharsets.UTF_8.name());
         this.testId = testId;
         this.getJtl = getJtl;
         credOps = new FrugalCredentialsOps();
@@ -76,8 +76,8 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
             run.setResult(Result.FAILURE);
             return;
         }
-        String username = c.getUsername();
-        String password = c.getPassword().getPlainText();
+        String username = URLEncoder.encode(c.getUsername(), StandardCharsets.UTF_8.name());
+        String password = URLEncoder.encode(c.getPassword().getPlainText(), StandardCharsets.UTF_8.name());
 
         //Setting up cookie manager
         CookieManager ck = new CookieManager();
