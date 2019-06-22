@@ -38,17 +38,17 @@
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://github.com/FrugalTest/frugal-testing-jenkins-plugin/blob/master/LICENSE</url>
+            <url>https://github.com/jenkinsci/frugal-testing-plugin/blob/master/LICENSE</url>
         </license>
     </licenses>
-    <!-- Assuming you want to host on @jenkinsci:
-    <url>https://wiki.jenkins.io/display/JENKINS/TODO+Plugin</url>
+    
+    <url>https://wiki.jenkins.io/display/JENKINS/Frugal+Testing+plugin</url>
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <connection>scm:git:git://github.com/jenkinsci/frugal-testing-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:jenkinsci/frugal-testing-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/frugal-testing-plugin</url>
     </scm>
-    -->
+    
 
     <repositories>
         <repository>
@@ -62,4 +62,17 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+    
+    <developers>
+    <developer>
+      <id>frugaltesting</id>
+      <name>Bharti Garg</name>
+      <email>info@frugaltesting.com</email>
+    </developer>
+    <developer>
+      <id>jakshatdesai</id>
+      <name>Jakshat Desai</name>
+      <email>jakshatdesai@gmail.com</email>
+    </developer>
+  </developers>
 </project>
