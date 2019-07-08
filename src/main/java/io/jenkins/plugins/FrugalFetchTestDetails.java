@@ -42,17 +42,25 @@ public class FrugalFetchTestDetails {
                 .build();
         client.newCall(request1).execute();
 
-        //fetch tests
+        //Checking if login was successful
         Request request2 = new Request.Builder()
-                .url(serverUrl +"/rest/getTestNTestRuns")
-                .post(req)
+                .url(serverUrl +"/CheckUserStatus")
+                .get()
                 .build();
         Response response2 = client.newCall(request2).execute();
+        long userID = (new JSONObject(response2.body().string()).getLong("id"));
+
+        //fetch tests
+        Request request3 = new Request.Builder()
+                .url(serverUrl +"/rest/getTestNTestRuns?userID="+userID)
+                .post(req)
+                .build();
+        Response response3 = client.newCall(request3).execute();
 
         ck.getCookieStore().removeAll();
 
         JSONArray jArray = new JSONArray();
-        String jsonData = response2.body().string();
+        String jsonData = response3.body().string();
         try {
             JSONObject jObject = new JSONObject("{\"\":" + jsonData + "}");
             jArray = jObject.getJSONArray("");

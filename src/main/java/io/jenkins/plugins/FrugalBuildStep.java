@@ -98,18 +98,43 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
                 .url(serverUrl+"/login")
                 .post(loginReq)
                 .build();
-        Response response1 = client.newCall(request1).execute();
-        if(!response1.isSuccessful())
+        client.newCall(request1).execute();
+
+        //Checking if login was successful
+        Request request2 = new Request.Builder()
+                .url(serverUrl +"/CheckUserStatus")
+                .get()
+                .build();
+        Response response2 = client.newCall(request2).execute();
+        if(!response2.isSuccessful())
         {
-            listener.getLogger().println("Login failed");
+            listener.getLogger().println("Login Failed");
             run.setResult(Result.FAILURE);
             return;
         }
-        listener.getLogger().println("Logged in");
+        String userDetails = response2.body().string();
+        if(userDetails.isEmpty())
+        {
+            listener.getLogger().println("Login Failed");
+            run.setResult(Result.FAILURE);
+            return;
+        }
+        //Obtaining userID of logged in user
+        long userID;
+        //If the response isnt JSON them there was an error logging in
+        try {
+            JSONObject userData = new JSONObject(userDetails);
+            userID = userData.getLong("id");
+        }catch(Exception e)
+        {
+            listener.getLogger().println("Login Failed");
+            run.setResult(Result.FAILURE);
+            return;
+        }
 
         //Creating a test run and obtaining a test run ID from it
         Request request3 = new Request.Builder()
-                .url(serverUrl+"/rest/createTestRun/"+getTestId()+"/"+getRunTag())
+                .url(serverUrl+"/rest/createTestRun/"+getTestId()+"/"+getRunTag()+"/"+userID)
                 .post(req)
                 .build();
         Response response3 = client.newCall(request3).execute();
@@ -130,7 +155,7 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
 
         //Creating a test instance
         Request request4 = new Request.Builder()
-                .url(serverUrl+"/rest/createInstance.action/"+getTestId()+"/"+testRunId)
+                .url(serverUrl+"/rest/createInstance.action/"+getTestId()+"/"+testRunId+"/"+userID)
                 .post(req)
                 .build();
         Response response4 = client.newCall(request4).execute();
@@ -143,10 +168,18 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
         listener.getLogger().println("Instance Created");
 
         //Staring test
+        listener.getLogger().println("Starting test. This may take a few minutes. . . ");
         Request request5 = new Request.Builder()
-                .url(serverUrl+"/rest/startTest.action/"+getTestId()+"/"+getRunTag()+"/"+testRunId)
+                .url(serverUrl+"/rest/startTest.action/"+getTestId()+"/"+userID+"/"+getRunTag()+"/"+testRunId)
                 .post(req)
                 .build();
+        Response response5 = client.newCall(request5).execute();
+        if(!response5.isSuccessful())
+        {
+            listener.getLogger().println("Test could not be started");
+            run.setResult(Result.FAILURE);
+            return;
+        }
         //Link to Frugal Testing test progress page
         String reportUrl = serverUrl+"/progress/"+getTestId()+"/"+getRunTag()+"/"+testRunId;
         String displayName = "Frugal Testing Report "+getRunTag();
@@ -157,14 +190,6 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
         faction.setReportUrl(reportUrl);
         run.addAction(faction);
         listener.getLogger().println("Monitor your test at :"+reportUrl);
-        listener.getLogger().println("Starting test. This may take a few minutes. . . ");
-        Response response5 = client.newCall(request5).execute();
-        if(!response5.isSuccessful())
-        {
-            listener.getLogger().println("Test could not be started");
-            run.setResult(Result.FAILURE);
-            return;
-        }
 
         //Getting live test status
         try {
@@ -216,7 +241,7 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
             //Downloading JTL
             listener.getLogger().println("Downloading jtl file. . .");
             Request request7 = new Request.Builder()
-                    .url(serverUrl+"/downloadJTL/"+getTestId()+"/"+testRunId)
+                    .url(serverUrl+"/downloadJTL/"+userID+"/"+getTestId()+"/"+testRunId)
                     .get()
                     .build();
             Response response7 = client.newCall(request7).execute();
