@@ -28,8 +28,7 @@ import static io.jenkins.plugins.FrugalServerDetails.SERVERURL;
  * @author Jakshat Desai
  *
  */
-
-public class FrugalBuildStep extends Builder implements SimpleBuildStep {
+	 public class FrugalBuildStep extends Builder implements SimpleBuildStep {
     private String userId;//Stores ID given to a particular credential by jenkins
     private String testId;//ID of test the user wants to execute
     private String runTag;//Run name chosen by user
@@ -189,12 +188,14 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
         faction.setIconFileName(ICONPATH);
         faction.setReportUrl(reportUrl);
         run.addAction(faction);
-        listener.getLogger().println("Monitor your test at :"+reportUrl);
+        listener.getLogger().println("Monitor your test progress: "+reportUrl);
 
         //Getting live test status
         try {
             int counter=0;
             String previous_timeStamp = "";
+            boolean dasflag=true;
+            String dasurl = serverUrl+"/dashboard/"+testRunId+"/all";
             while(true) {
                 Request request6 = new Request.Builder()
                         .url(serverUrl + "/rest/getLatestTestResultByRunID?testRunID=" + testRunId + "&locationID=all")
@@ -211,6 +212,10 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
                     if(jObject.getString("testRunComplete").equals("yes"))break;
                     if(toPrint.equals(""))continue;
                     previous_timeStamp = toPrint.substring(1,9);
+                    if(dasflag) {
+                    	System.out.println("Monitor your test at: "+dasurl);
+                    	dasflag=false;
+                    }
                     listener.getLogger().println(toPrint);
                     //print result in intervals of one minute
                     TimeUnit.SECONDS.sleep(30);
@@ -249,8 +254,8 @@ public class FrugalBuildStep extends Builder implements SimpleBuildStep {
             {
                 listener.getLogger().println("Download Complete!");
                 String jtlFile = response7.body().string();
-                String workspaceDir = filePath+"/"+run.getId();
-                String completeJtlPath = workspaceDir+"/"+"output_"+getTestId()+"_"+testRunId+".jtl";
+                String workspaceDir = filePath+"\\"+run.getId();
+                String completeJtlPath = workspaceDir+"\\"+"output_"+getTestId()+"_"+testRunId+".jtl";
                 boolean created = new File(workspaceDir).mkdir();
                 if(created) {
                     File file = new File(completeJtlPath);

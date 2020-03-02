@@ -78,7 +78,7 @@ public class FrugalBuildStepDescriptor extends BuildStepDescriptor<Builder> {
     }
 
     //This function is responsible for fetching the contents appearing in the "Username" dropdown
-    public ListBoxModel doFillUserIdItems() {
+    public ListBoxModel doFillUserIdItems() throws IOException {
         ListBoxModel items = new ListBoxModel();
         items.add("Choose username","");//adding a dummy (placeholder)value to the dropdown
         if(!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER))
@@ -86,8 +86,13 @@ public class FrugalBuildStepDescriptor extends BuildStepDescriptor<Builder> {
         allCreds = credOps.getAllCredentials();//getting all the credentials using
         //Adding all the credentials to the dropdown
         for (final FrugalCredentials c : allCreds) {
+        	String username1=c.getUsername();
+        	Secret password1=c.getPassword();
+        	if((new CheckingLogin()).isLoginSuccessful(username1,password1)) 
+        	{
                 items.add(c.getUsername(),c.getId());
-            }
+                }
+        	}
         return items;
     }
 
@@ -123,19 +128,19 @@ public class FrugalBuildStepDescriptor extends BuildStepDescriptor<Builder> {
     //Checking for validity of various fields in build step:
     public FormValidation doCheckUserId(@QueryParameter String userId)
     {
-        if(userId.equals(""))return FormValidation.error("Please choose a valid username");
+        //if(userId.equals(""))return FormValidation.error("Please choose a valid username");
         return FormValidation.ok();
     }
 
     public FormValidation doCheckTestId(@QueryParameter String testId)
     {
-        if(testId.equals(""))return FormValidation.error("Please choose a valid test");
+        //if(testId.equals(""))return FormValidation.error("Please choose a valid test");
         return FormValidation.ok();
     }
 
     public FormValidation doCheckRunTag(@QueryParameter String runTag)
     {
-        if(runTag.equals(""))return FormValidation.error("Please choose a valid run tag");
+        //if(runTag.equals(""))return FormValidation.error("Please choose a valid run tag");
         return FormValidation.ok();
     }
 
