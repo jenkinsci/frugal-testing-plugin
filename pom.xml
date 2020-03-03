@@ -38,7 +38,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>frugal</artifactId>
-    <version>1.10</version>
+    <version>1.10-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.7.3</jenkins.version>
@@ -59,7 +59,7 @@
         <connection>scm:git:git://github.com/jenkinsci/frugal-testing-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/frugal-testing-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/frugal-testing-plugin</url>
-      <tag>frugal-1.10</tag>
+      <tag>HEAD</tag>
   </scm>
     
     <repositories>
