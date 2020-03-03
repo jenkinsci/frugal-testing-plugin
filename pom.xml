@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <dependencies>
         <dependency>
             <groupId>com.squareup.okhttp</groupId>
@@ -19,6 +18,18 @@
             <version>20180813</version>
         </dependency>
     </dependencies>
+    <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+</configuration>
+</plugin>
+    </plugins>
+</build>
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
@@ -26,12 +37,13 @@
         <relativePath />
     </parent>
     <groupId>io.jenkins.plugins</groupId>
-    <artifactId>frugal-testing</artifactId>
-    <version>1.2</version>
+    <artifactId>frugal</artifactId>
+    <version>1.4-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.7.3</jenkins.version>
         <java.level>7</java.level>
+        
     </properties>
     <name>Frugal Testing</name>
     <description>This plugin allows user to run tests on Frugal Testing platform</description>
@@ -47,10 +59,9 @@
         <connection>scm:git:git://github.com/jenkinsci/frugal-testing-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/frugal-testing-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/frugal-testing-plugin</url>
-      <tag>frugal-testing-1.2</tag>
+      <tag>HEAD</tag>
   </scm>
     
-
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
