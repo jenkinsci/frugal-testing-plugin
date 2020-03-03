@@ -10,7 +10,7 @@ package io.jenkins.plugins;
 
 public class FrugalServerDetails {
 
-    //Address of the server
+    //Address of the server non www
     public static final String SERVERURL = "https://frugaltesting.com";
     //Address of plugin icon
     public static final String ICONPATH = "/plugin/frugal-testing/logo.png";
